@@ -14,7 +14,7 @@ import logging
 import pytesseract
 
 
-pytesseract.pytesseract.tesseract_cmd = r'c:\users\shiva\appdata\local\pip\cache\wheels\71\c9\aa\698c579693e83fdda9ad6d6f0d8f61ed986e27925ef576f109'
+pytesseract.pytesseract.tesseract_cmd = '/opt/homebrew/bin/tesseract'
 
 
 
@@ -83,7 +83,7 @@ async def main():
     dp.include_router(lesson_zero_router)
     dp.include_router(zi_identification_router)
     dp.include_router(flashcard_router)
-    
+
     await dp.start_polling(MAINdata.bot)
 
 # Точка входа
