@@ -1,5 +1,6 @@
 from lessons.lesson_0 import lesson_zero_router, LessonZeroStates
 from zi_identification import zi_identification_router, ZiIdentificationStates
+from flashcards import flashcard_router
 import MAINdata
 
 
@@ -11,6 +12,7 @@ from aiogram.fsm.context import FSMContext
 import asyncio
 import logging
 import pytesseract
+
 
 pytesseract.pytesseract.tesseract_cmd = '/opt/homebrew/bin/tesseract'
 
@@ -46,38 +48,29 @@ async def start_handler(message: Message):
 async def menu_handler(message: Message, state: FSMContext):
     user_id = message.from_user.id
 
-    # Инициализируем данные пользователя, если их нет
-    data = await state.get_data()
-    if 'users_db' not in data:
-        await state.update_data(users_db={})
-
     current_state = await state.get_state()
 
     if current_state is not None:
-        # Проверка состояния, если пользователь уже в процессе выполнения другого действия
         if current_state in [LessonZeroStates.waiting_for_name.state, ZiIdentificationStates.waiting_for_image.state]:
             await message.reply("Вы не можете выполнить эту команду, пока не завершите текущую.")
             return
 
-    # Обработка команд
     if message.text == "Изучение китайского с нуля":
-        await state.set_state(LessonZeroStates.waiting_for_name)  # Устанавливаем состояние для ввода имени
+        await state.set_state(LessonZeroStates.waiting_for_name)
         await message.answer("Вы выбрали изучение китайского с нуля. Давайте начнем с небольшой регистрации.")
         await asyncio.sleep(1)
         await message.answer("Введите ваше имя:")
-        dp.include_router(lesson_zero_router)
 
     elif message.text == "Подготовка к HSK":
         await message.answer("Вы выбрали подготовку к HSK. В разработке!")
 
     elif message.text == "Распознать иероглиф":
-        # Проверяем, если пользователь в процессе выполнения другого действия
-        if current_state is not None and current_state != ZiIdentificationStates.waiting_for_image.state:
-            await message.reply("Вы не можете распознавать иероглифы до завершения текущего процесса.")
-            return
-        await message.reply("Отправьте фото с иероглифами для распознавания.")
-        dp.include_router(zi_identification_router)
-        await state.set_state(ZiIdentificationStates.waiting_for_image) 
+        if current_state != ZiIdentificationStates.waiting_for_image.state:
+            await message.reply("Отправьте фото с иероглифами для распознавания.")
+            await state.set_state(ZiIdentificationStates.waiting_for_image)
+
+    elif message.text == "Карточки":
+        await flashcard_router.start_handler(message, state)
 
 
 
@@ -86,6 +79,11 @@ async def menu_handler(message: Message, state: FSMContext):
 # Главная функция для запуска бота
 async def main():
     print("Бот запущен!")
+    # Регистрация роутеров
+    dp.include_router(lesson_zero_router)
+    dp.include_router(zi_identification_router)
+    dp.include_router(flashcard_router)
+    
     await dp.start_polling(MAINdata.bot)
 
 # Точка входа
