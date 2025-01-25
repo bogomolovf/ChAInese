@@ -1,6 +1,6 @@
 from lessons.lesson_0 import lesson_zero_router, LessonZeroStates
 from zi_identification import zi_identification_router, ZiIdentificationStates
-from flashcards import flashcard_router
+from flashcards import fcr, FlashcardStates, start_handler as fsh
 import MAINdata
 
 
@@ -30,6 +30,7 @@ main_menu = ReplyKeyboardMarkup(
         [KeyboardButton(text="Изучение китайского с нуля")],
         [KeyboardButton(text="Подготовка к HSK")],
         [KeyboardButton(text="Распознать иероглиф")],
+        [KeyboardButton(text="Карточки")],
     ],
     resize_keyboard=True
 )
@@ -44,7 +45,7 @@ async def start_handler(message: Message):
 
 
 # Обработка кнопок главного меню
-@dp.message(lambda message: message.text in ["Изучение китайского с нуля", "Подготовка к HSK", "Распознать иероглиф"])
+@dp.message(lambda message: message.text in ["Изучение китайского с нуля", "Подготовка к HSK", "Распознать иероглиф", "Карточки"])
 async def menu_handler(message: Message, state: FSMContext):
     user_id = message.from_user.id
 
@@ -70,7 +71,9 @@ async def menu_handler(message: Message, state: FSMContext):
             await state.set_state(ZiIdentificationStates.waiting_for_image)
 
     elif message.text == "Карточки":
-        await flashcard_router.start_handler(message, state)
+        await message.answer("Переходим в режим работы с карточками.")
+        await state.set_state(FlashcardStates.OPTION)
+        await fsh(message, state)
 
 
 
@@ -82,11 +85,13 @@ async def main():
     # Регистрация роутеров
     dp.include_router(lesson_zero_router)
     dp.include_router(zi_identification_router)
-    dp.include_router(flashcard_router)
+    dp.include_router(fcr)
 
     await dp.start_polling(MAINdata.bot)
 
 # Точка входа
 if __name__ == "__main__":
+    fcr.init_db()
+
     logging.basicConfig(level=logging.INFO)
     asyncio.run(main())
