@@ -1,11 +1,4 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from aiogram import Bot
-
-
-DATABASE_URL = "postgresql://postgres.uilrtenermvclsnjlcym:goodgame2254FF@aws-0-eu-central-1.pooler.supabase.com:6543/postgres"
-BOT_TOKEN = '7379769326:AAFpOSucF2-PEqC5s8i5mNBa8pGjVzqJycU'
-bot = Bot(token=BOT_TOKEN)
-
 
 
 

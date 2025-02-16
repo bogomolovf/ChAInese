@@ -1,11 +1,11 @@
-from deep_translator import GoogleTranslator
-import pytesseract
-from PIL import Image
-from pypinyin import pinyin, Style
-from io import BytesIO
-from aiogram import Router, types
-from MAINdata import bot, BOT_TOKEN
 from aiogram.fsm.state import StatesGroup, State
+from deep_translator import GoogleTranslator
+from pypinyin import pinyin, Style
+from aiogram import Router, types
+from MAINdata import bot
+from PIL import Image
+import pytesseract
+
 
 zi_identification_router = Router()
 
@@ -14,22 +14,16 @@ class ZiIdentificationStates(StatesGroup):
 
 @zi_identification_router.message(lambda message: message.photo is not None)
 async def handle_image(message: types.Message):
-    photo = message.photo[-1]  # Получаем максимальное фото
+    photo = message.photo[-1]
 
-    file_info = await bot.get_file(photo.file_id)
-
-    # Открываем изображение с помощью PIL
-    
+    file_info = await bot.get_file(photo.file_id) 
     file_path = file_info.file_path
     file = await bot.download_file(file_path)
 
     img = Image.open(file)
 
+    text = pytesseract.image_to_string(img, lang='chi_sim')
 
-    # Применяем OCR для распознавания текста
-    text = pytesseract.image_to_string(img, lang='chi_sim')  # Для китайского языка используем lang='chi_sim'
-
-    # Отправляем результат распознавания
     if text:
 
         pinyin_text = ' '.join([''.join(p) for p in pinyin(text, style=Style.TONE)])
