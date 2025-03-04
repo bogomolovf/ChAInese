@@ -3,7 +3,7 @@ from psycopg2 import sql
 import os
 
 # Database URL (update with your Supabase credentials)
-DATABASE_URL = "postgresql://postgres.uilrtenermvclsnjlcym:goodgame2254FF@aws-0-eu-central-1.pooler.supabase.com:6543/postgres"
+DATABASE_URL = "postgresql://postgres.uilrtenermvclsnjlcym:password@aws-0-eu-central-1.pooler.supabase.com:6543/postgres"
 
 def test_connection():
     try:
